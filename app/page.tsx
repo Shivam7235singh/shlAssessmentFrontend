@@ -1,65 +1,114 @@
-import Image from "next/image";
+"use client";
+
+import { useRouter } from "next/navigation";
+import QueryBox from "../components/QueryBox";
+import { getRecommendation } from "../lib/api";
+import { useState } from "react";
+import { Loader2, Star, Shield, Users } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = async (query: string) => {
+    setLoading(true);
+    try {
+      const result = await getRecommendation(query);
+      router.push(`/result?data=${encodeURIComponent(JSON.stringify(result))}`);
+    } catch (error) {
+      console.error("Search failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+      <div className="max-w-4xl mx-auto px-4">
+        
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center items-center gap-3 mb-4">
+            <Shield className="w-8 h-8 text-blue-600" />
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              SHL Assessment AI
+            </h1>
+          </div>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Get intelligent assessment recommendations powered by AI. 
+            Describe your hiring needs and receive tailored SHL assessment suggestions.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 text-center">
+            <Star className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-2">AI-Powered</h3>
+            <p className="text-gray-600 text-sm">
+              Advanced RAG system analyzes your requirements and suggests the best assessments
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 text-center">
+            <Users className="w-8 h-8 text-green-600 mx-auto mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-2">Role-Specific</h3>
+            <p className="text-gray-600 text-sm">
+              Tailored recommendations for different job roles and seniority levels
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 text-center">
+            <Shield className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+            <h3 className="font-semibold text-gray-900 mb-2">Comprehensive</h3>
+            <p className="text-gray-600 text-sm">
+              Covers technical skills, cognitive abilities, and behavioral competencies
+            </p>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Search Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Find the Right Assessments
+            </h2>
+            <p className="text-gray-600">
+              Describe the job role, required skills, or specific competencies you need to assess
+            </p>
+          </div>
+
+          <QueryBox onSearch={handleSearch} />
+
+          {loading && (
+            <div className="flex justify-center items-center gap-3 mt-6 text-blue-600">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="font-medium">Analyzing requirements and generating recommendations...</span>
+            </div>
+          )}
+
+          {/* Example Queries */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-600 mb-3 text-center">Try these examples:</p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[
+                "Senior software engineer with Python expertise",
+                "Sales manager with leadership skills", 
+                "Data analyst with SQL and visualization skills",
+                "Customer service representative"
+              ].map((example, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSearch(example)}
+                  className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition-colors"
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
